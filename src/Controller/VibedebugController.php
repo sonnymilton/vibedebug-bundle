@@ -17,13 +17,13 @@ use Symfony\Component\HttpKernel\Profiler\Profiler;
 use Throwable;
 use Twig\Environment;
 
-final class VibedebugController
+final readonly class VibedebugController
 {
     /**
      * @param iterable<AgentInterface> $agents
      */
     public function __construct(
-        private readonly iterable $agents,
+        private iterable $agents,
         private Profiler $profiler,
         private Environment $twig,
     )

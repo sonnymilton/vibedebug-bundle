@@ -4,7 +4,7 @@ description: Setup PHP Environment
 inputs:
     php-version:
         description: PHP version
-        default: '8.1'
+        default: '8.2'
 
 runs:
     using: composite

@@ -26,8 +26,7 @@ final readonly class VibedebugController
         private iterable $agents,
         private Profiler $profiler,
         private Environment $twig,
-    )
-    {
+    ) {
     }
 
     public function askAgent(string $agent, Request $request): JsonResponse

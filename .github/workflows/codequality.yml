@@ -1,0 +1,41 @@
+name: Code quality
+
+on:
+    push:
+        branches:
+            - main
+        paths:
+            - src/**
+    pull_request:
+        paths:
+            - src/**
+
+
+jobs:
+    composer:
+        runs-on: ubuntu-latest
+        steps:
+            -   uses: actions/checkout@v4
+            -   uses: ./.github/actions/setup_php
+
+            -   name: Validate composer.json and composer.lock
+                run: composer validate --strict
+
+            -   name: Search for security vulnerabilities
+                run: composer audit
+
+            -   name: Check system requirements
+                run: composer check
+
+    code_quality:
+        needs: [ 'composer' ]
+        runs-on: ubuntu-latest
+        steps:
+            -   uses: actions/checkout@v4
+            -   uses: ./.github/actions/setup_php
+
+            -   name: Static analysis
+                run: vendor/bin/phpstan analyze --error-format=github
+
+            -   name: Code style
+                run: vendor/bin/php-cs-fixer fix --dry-run --format=json

@@ -1,0 +1,30 @@
+{
+    "name": "milton/vibedebug-bundle",
+    "description": "Bundle for vibedebugging (integrated with symfony/ai)",
+    "type": "symfony-bundle",
+    "keywords": ["dev", "debugging"],
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Milton\\VibedebugBundle\\": "src/"
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "require": {
+        "php": ">=8.1",
+        "symfony/http-kernel": "^6.4 || ^7.0",
+        "symfony/ai-agent": "dev-main",
+        "symfony/dependency-injection": "^6.4 || ^7.0"
+    },
+    "require-dev": {
+        "phpstan/phpstan": "^2.1",
+        "friendsofphp/php-cs-fixer": "^3.87"
+    },
+    "authors": [
+        {
+            "name": "Nikolay Mikhaylov",
+            "email": "sonny@milton.pro"
+        }
+    ]
+}

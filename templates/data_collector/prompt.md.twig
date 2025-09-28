@@ -1,0 +1,22 @@
+# {{ exception.statusCode }} | {{ exception.class }}
+
+## An Error Occurred: "{{ exception.message }}"
+
+- **File**: `{{ exception.file }}`
+- **Line**: `{{ exception.line }}`
+
+### Stack Trace
+
+{% for trace in exception.trace -%}
+    {{ loop.index }}. {{ _self.view_trace(trace) }}
+{% endfor -%}
+
+
+{%- macro view_trace(trace) -%}
+    {%- if trace.function -%}
+        **{% if trace.class %}{{ trace.class }}->{% endif %}
+        {{- trace.function }}()** at `{{ trace.file }}:{{ trace.line }}`
+    {%- else -%}
+        at `{{- trace.file -}}:{{- trace.line }}`
+    {%- endif ~%}
+{%- endmacro -%}

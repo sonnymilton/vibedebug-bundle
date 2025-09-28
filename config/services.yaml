@@ -1,0 +1,16 @@
+services:
+    vibedebug.data_collector:
+        class: Milton\VibedebugBundle\DataCollector\VibedebugDataCollector
+        arguments:
+            $agents: !tagged_iterator ai.agent
+        tags:
+            - { name: 'data_collector', template: '@Vibedebug/data_collector/collector.html.twig', id: 'vibedebug' }
+
+    vibedebug.controller:
+        class: Milton\VibedebugBundle\Controller\VibedebugController
+        arguments:
+            $agents: !tagged_iterator ai.agent
+            $profiler: '@profiler'
+            $twig: '@twig'
+        tags:
+            - { name: 'controller.service_arguments' }

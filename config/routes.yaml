@@ -1,0 +1,10 @@
+vibedebug_ask_agent:
+    path: /_vibedebug/ask/{agent}
+    methods: [POST]
+    controller: vibedebug.controller::askAgent
+
+
+vibedebug_prompt:
+    path: /_vibedebug/{token}/prompt
+    methods: [GET]
+    controller: vibedebug.controller::prompt

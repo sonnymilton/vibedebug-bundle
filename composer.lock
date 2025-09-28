@@ -632,12 +632,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/ai-platform.git",
-                "reference": "23f6ce586b8b54b8ee0e1e322d706e166b919e30"
+                "reference": "19064e539bc2795c5aa84feffb2c57a9da153270"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/ai-platform/zipball/23f6ce586b8b54b8ee0e1e322d706e166b919e30",
-                "reference": "23f6ce586b8b54b8ee0e1e322d706e166b919e30",
+                "url": "https://api.github.com/repos/symfony/ai-platform/zipball/19064e539bc2795c5aa84feffb2c57a9da153270",
+                "reference": "19064e539bc2795c5aa84feffb2c57a9da153270",
                 "shasum": ""
             },
             "require": {
@@ -747,7 +747,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-09-27T10:07:51+00:00"
+            "time": "2025-09-28T19:56:10+00:00"
         },
         {
             "name": "symfony/clock",

@@ -14,8 +14,7 @@ final readonly class AgentRegistry implements AgentRegistryInterface
      */
     public function __construct(
         private iterable $agents,
-    )
-    {
+    ) {
     }
 
     public function getAgent(string $agentName): AgentInterface

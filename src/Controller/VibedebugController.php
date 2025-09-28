@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace Milton\VibedebugBundle\Controller;
 
-use Milton\VibedebugBundle\Agent\AgentRegistry;
+use Milton\VibedebugBundle\Agent\AgentRegistryInterface;
 use Milton\VibedebugBundle\Agent\Exception\AgentNotFoundException;
 use Milton\VibedebugBundle\DataCollector\VibedebugDataCollector;
-use Symfony\AI\Agent\AgentInterface;
 use Symfony\AI\Platform\Message\Content\Text;
 use Symfony\AI\Platform\Message\MessageBag;
 use Symfony\AI\Platform\Message\UserMessage;
@@ -22,7 +21,7 @@ use Twig\Environment;
 final readonly class VibedebugController
 {
     public function __construct(
-        private AgentRegistry $agentRegistry,
+        private AgentRegistryInterface $agentRegistry,
         private Profiler $profiler,
         private Environment $twig,
     ) {

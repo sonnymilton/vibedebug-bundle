@@ -7,7 +7,7 @@ namespace Milton\VibedebugBundle\Agent;
 use Milton\VibedebugBundle\Agent\Exception\AgentNotFoundException;
 use Symfony\AI\Agent\AgentInterface;
 
-final readonly class AgentRegistry
+final readonly class AgentRegistry implements AgentRegistryInterface
 {
     /**
      * @param iterable<AgentInterface> $agents

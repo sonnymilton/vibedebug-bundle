@@ -1,4 +1,4 @@
-# VibedebugBundle
+# VibedebugBundle [![Code quality](https://github.com/sonnymilton/vibedebug-bundle/actions/workflows/codequality.yml/badge.svg?branch=main&event=push)](https://github.com/sonnymilton/vibedebug-bundle/actions/workflows/codequality.yml)
 
 VibedebugBundle is a Symfony bundle for “vibe debugging” your applications using AI agents. It automatically collects exceptions and allows you to send them to AI agents for analysis and suggestions directly in Symfony Profiler.
 

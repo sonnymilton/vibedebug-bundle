@@ -50,3 +50,15 @@ jobs:
 
             -   name: Code style
                 run: vendor/bin/php-cs-fixer fix --dry-run --format=json
+
+    test:
+        needs: [ 'composer', 'code_quality' ]
+        runs-on: ubuntu-latest
+        steps:
+            -   uses: actions/checkout@v4
+            -   uses: ./.github/actions/setup_php
+                with:
+                    php-version: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.php_version != '' && github.event.inputs.php_version || '8.2' }}
+
+            -   name: Test
+                run: vendor/bin/phpunit

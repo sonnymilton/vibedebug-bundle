@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Milton\VibedebugBundle\Controller;
 
+use Milton\VibedebugBundle\Agent\AgentRegistry;
+use Milton\VibedebugBundle\Agent\Exception\AgentNotFoundException;
 use Milton\VibedebugBundle\DataCollector\VibedebugDataCollector;
 use Symfony\AI\Agent\AgentInterface;
 use Symfony\AI\Platform\Message\Content\Text;
@@ -19,11 +21,8 @@ use Twig\Environment;
 
 final readonly class VibedebugController
 {
-    /**
-     * @param iterable<AgentInterface> $agents
-     */
     public function __construct(
-        private iterable $agents,
+        private AgentRegistry $agentRegistry,
         private Profiler $profiler,
         private Environment $twig,
     ) {
@@ -31,7 +30,12 @@ final readonly class VibedebugController
 
     public function askAgent(string $agent, Request $request): JsonResponse
     {
-        $agent = $this->getAgent($agent);
+        try {
+            $agent = $this->agentRegistry->getAgent($agent);
+        } catch (AgentNotFoundException $exception) {
+            throw new NotFoundHttpException($exception->getMessage());
+        }
+
         $message = new UserMessage(
             new Text($request->getPayload()->getString('prompt')),
         );
@@ -66,16 +70,5 @@ final readonly class VibedebugController
                 'Content-Type' => 'text/markdown',
             ]
         );
-    }
-
-    private function getAgent(string $agentName): AgentInterface
-    {
-        foreach ($this->agents as $agent) {
-            if ($agent->getName() === $agentName) {
-                return $agent;
-            }
-        }
-
-        throw new NotFoundHttpException('Agent with name '.$agentName.' not found');
     }
 }

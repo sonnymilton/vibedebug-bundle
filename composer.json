@@ -9,6 +9,11 @@
             "Milton\\VibedebugBundle\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Milton\\VibedebugBundle\\Tests": "tests/"
+        }
+    },
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
@@ -20,7 +25,8 @@
     },
     "require-dev": {
         "phpstan/phpstan": "^2.1",
-        "friendsofphp/php-cs-fixer": "^3.87"
+        "friendsofphp/php-cs-fixer": "^3.87",
+        "phpunit/phpunit": "^11.5"
     },
     "authors": [
         {

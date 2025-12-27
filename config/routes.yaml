@@ -1,7 +1,7 @@
-vibedebug_ask_agent:
-    path: /_vibedebug/ask/{agent}
+vibedebug_chat:
+    path: /_vibedebug/chat/{agent}/{token}
     methods: [POST]
-    controller: vibedebug.controller::askAgent
+    controller: vibedebug.controller::chat
 
 
 vibedebug_prompt:

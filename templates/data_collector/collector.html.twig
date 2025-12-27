@@ -3,79 +3,496 @@
 {% block stylesheets %}
     {{ parent() }}
     <style>
-        #md-exception-description-textarea {
-            width: 100%;
-            height: 400px
+        :root {
+            --vb-border: rgba(255, 255, 255, .12);
+            --vb-bg: rgba(255, 255, 255, .03);
+            --vb-bg-2: rgba(255, 255, 255, .06);
+            --vb-text-dim: rgba(255, 255, 255, .75);
+            --vb-radius: 12px;
         }
 
-        .btn {
+        /* Prevent overflow outside panel */
+        .vb-card,
+        .vb-chat,
+        .vb-msg,
+        .vb-bubble,
+        .vb-content {
+            max-width: 100%;
+        }
+
+        .vb-card { overflow-x: hidden; }
+        .vb-chat { overflow-x: hidden; }
+
+        /* Flex children must be shrinkable */
+        .vb-msg { min-width: 0; }
+        .vb-bubble { min-width: 0; }
+
+        /* Layout */
+        .vb-wrap {
+            display: grid;
+            gap: 18px;
+        }
+
+        .vb-card {
+            border: 1px solid var(--vb-border);
+            background: var(--vb-bg);
+            border-radius: var(--vb-radius);
+            padding: 14px;
+        }
+
+        .vb-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .vb-title {
+            margin: 0;
+            font-size: 18px;
+            line-height: 1.2;
+        }
+
+        .vb-subtitle {
+            margin: 0;
+            color: var(--vb-text-dim);
+            font-size: 13px;
+        }
+
+        .vb-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .vb-btn {
+            appearance: none;
+            border: 1px solid var(--vb-border);
+            background: rgba(255, 255, 255, .05);
             color: inherit;
-            background-color: transparent;
-            padding: 6px 12px;
+            padding: 7px 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 13px;
+            line-height: 1;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        #ai-response {
+        .vb-btn:hover { background: rgba(255, 255, 255, .08); }
+        .vb-btn:active { transform: translateY(1px); }
+
+        .vb-btn[disabled] {
+            opacity: .55;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .vb-btn-primary {
+            border-color: rgba(80, 170, 255, .45);
+            background: rgba(80, 170, 255, .12);
+        }
+
+        .vb-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 8px;
+            border-radius: 999px;
+            border: 1px solid var(--vb-border);
+            background: rgba(0, 0, 0, .18);
+            font-size: 12px;
+            color: var(--vb-text-dim);
+        }
+
+        /* Chat */
+        .vb-chat-wrap {
+            display: grid;
+            gap: 12px;
+        }
+
+        .vb-chat {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 8px 6px;
+            max-height: 540px;
+            overflow: auto;
+        }
+
+        /* Messenger bubbles */
+        .vb-msg {
+            display: flex;
+            flex-direction: column;
+            max-width: 78%;
+            gap: 4px;
+        }
+
+        .vb-msg__meta {
+            font-size: 11px;
+            color: var(--vb-text-dim);
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .vb-bubble {
+            border: 1px solid var(--vb-border);
+            border-radius: 14px;
+            padding: 10px 12px;
+            background: rgba(0, 0, 0, .18);
+        }
+
+        .vb-content {
+            font-size: 13px;
+            line-height: 1.6;
+            overflow-wrap: anywhere;
+            word-break: normal;
+        }
+
+        .vb-content > :first-child { margin-top: 0; }
+        .vb-content > :last-child  { margin-bottom: 0; }
+
+        .vb-content p { margin: 0 0 10px 0; }
+
+        .vb-content h1,
+        .vb-content h2,
+        .vb-content h3,
+        .vb-content h4 {
+            margin: 14px 0 8px 0;
+            line-height: 1.25;
+            font-weight: 650;
+        }
+
+        .vb-content h1 { font-size: 18px; }
+        .vb-content h2 { font-size: 16px; }
+        .vb-content h3 { font-size: 14px; }
+        .vb-content h4 { font-size: 13px; color: var(--vb-text-dim); }
+
+        .vb-content ul,
+        .vb-content ol {
+            margin: 0 0 10px 18px;
+            padding: 0;
+        }
+
+        .vb-content li { margin: 4px 0; }
+
+        .vb-content hr {
+            border: 0;
+            border-top: 1px solid var(--vb-border);
+            margin: 12px 0;
+        }
+
+        .vb-content a {
+            color: rgba(120, 190, 255, .95);
+            text-decoration: underline;
+            text-underline-offset: 2px;
+        }
+
+        .vb-content a:hover { opacity: .9; }
+
+        .vb-content code {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 12px;
+            padding: 1px 6px;
+            border-radius: 8px;
+            border: 1px solid var(--vb-border);
+            background: rgba(0, 0, 0, .20);
+        }
+
+        .vb-content pre {
+            margin: 10px 0;
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid var(--vb-border);
+            background: rgba(0, 0, 0, .30);
+            overflow: auto;
+            max-width: 100%;
+        }
+
+        .vb-content pre code {
+            padding: 0;
+            border: 0;
+            background: transparent;
+            font-size: 12px;
+            white-space: pre;
+        }
+
+        .vb-content blockquote {
+            margin: 10px 0;
+            padding: 8px 12px;
+            border-left: 3px solid rgba(255, 255, 255, .18);
+            background: rgba(255, 255, 255, .04);
+            border-radius: 10px;
+            color: rgba(255, 255, 255, .88);
+        }
+
+        .vb-content blockquote p { margin: 0; }
+
+        .vb-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+            display: block;
+            overflow: auto;
+            max-width: 100%;
+        }
+
+        .vb-content th,
+        .vb-content td {
+            border: 1px solid var(--vb-border);
+            padding: 6px 8px;
+            vertical-align: top;
+        }
+
+        .vb-content th {
+            background: rgba(255, 255, 255, .05);
+            font-weight: 600;
+        }
+
+        .vb-content img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+        }
+
+        /* role: user (right) */
+        .vb-msg--user {
+            align-self: flex-end;
+            align-items: flex-end;
+        }
+
+        .vb-msg--user .vb-bubble {
+            background: rgba(80, 170, 255, .12);
+            border-color: rgba(80, 170, 255, .22);
+        }
+
+        /* role: assistant (left) */
+        .vb-msg--assistant {
+            align-self: flex-start;
+            align-items: flex-start;
+        }
+
+        .vb-msg--assistant .vb-bubble {
+            background: rgba(255, 255, 255, .05);
+            border-color: rgba(255, 255, 255, .14);
+        }
+
+        /* role: system (center, compact) */
+        .vb-msg--system {
+            align-self: center;
+            align-items: center;
+            max-width: 92%;
+        }
+
+        .vb-msg--system .vb-bubble {
+            background: rgba(255, 200, 80, .10);
+            border-color: rgba(255, 200, 80, .22);
+            border-radius: 12px;
+        }
+
+        .vb-msg--system .vb-content {
+            font-size: 12px;
+            line-height: 1.5;
+            color: rgba(255, 255, 255, .85);
+        }
+
+        /* Composer under chat */
+        .vb-composer {
+            border-top: 1px solid var(--vb-border);
+            padding-top: 12px;
+            display: grid;
+            gap: 10px;
+        }
+
+        .vb-input {
+            width: 100%;
+            min-height: 76px;
+            max-height: 220px;
+            resize: vertical;
+            padding: 10px 12px;
+            border-radius: 12px;
+            border: 1px solid var(--vb-border);
+            background: rgba(0, 0, 0, .25);
+            color: inherit;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .vb-hint {
+            font-size: 12px;
+            color: var(--vb-text-dim);
+        }
+
+        /* loader + error */
+        .vb-loader {
             display: none;
+            align-items: center;
+            gap: 10px;
+            color: var(--vb-text-dim);
+            font-size: 13px;
         }
 
-        .ai-response-pre {
-            white-space: pre-wrap;
-        }
+        .vb-loader.is-visible { display: inline-flex; }
 
         @keyframes spin {
-            from {
-                transform: rotate(0deg);
-            }
-            to {
-                transform: rotate(360deg);
-            }
+            from { transform: rotate(0deg) }
+            to { transform: rotate(360deg) }
         }
 
-        #ai-response-loader > svg {
+        .vb-loader svg {
             animation: spin 1s infinite linear;
         }
+
+        .vb-error {
+            display: none;
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 80, 80, .35);
+            background: rgba(255, 80, 80, .08);
+            color: rgba(255, 220, 220, .95);
+            white-space: pre-wrap;
+            font-size: 13px;
+        }
+
+        .vb-error.is-visible { display: block; }
     </style>
 {% endblock %}
 
+
 {% block javascripts %}
+    {{ parent() }}
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const copyButton = document.getElementById('copy-md-button');
-            const mdTextArea = document.getElementById('md-exception-description-textarea');
+            const sendBtn = document.getElementById('vb-send');
+            const agentSelect = document.getElementById('vb-agent');
+            const input = document.getElementById('vb-input');
+            const chat = document.getElementById('vb-chat');
+            const loader = document.getElementById('vb-loader');
+            const errorBox = document.getElementById('vb-error');
 
-            copyButton.addEventListener('click', async () => await navigator.clipboard.writeText(mdTextArea.value))
+            const setBusy = (busy) => {
+                sendBtn.disabled = busy;
+                agentSelect.disabled = busy;
+                loader.classList.toggle('is-visible', busy);
+            };
 
-            const aiResponseSection = document.getElementById('ai-response');
+            const showError = (text) => {
+                errorBox.textContent = text;
+                errorBox.classList.add('is-visible');
+            };
 
-            for (const button of document.getElementsByClassName('js-ask-agent-btn')) {
-                button.addEventListener('click', async (e) => {
-                    aiResponseSection.style.display = 'block';
+            const clearError = () => {
+                errorBox.textContent = '';
+                errorBox.classList.remove('is-visible');
+            };
 
-                    const button = e.target;
+            const appendMessage = ({role, metaLeft, content}) => {
+                const msg = document.createElement('div');
+                msg.className = `vb-msg vb-msg--${role}`;
 
-                    fetch(button.dataset.url, {
+                const meta = document.createElement('div');
+                meta.className = 'vb-msg__meta';
+
+                const left = document.createElement('span');
+                left.textContent = metaLeft ?? role;
+
+                meta.append(left);
+
+                const bubble = document.createElement('div');
+                bubble.className = 'vb-bubble';
+
+                const body = document.createElement('div');
+                body.className = 'vb-content';
+                body.innerHTML = content;
+
+                bubble.append(body);
+                msg.append(meta, bubble);
+                chat.append(msg);
+
+                msg.scrollIntoView({behavior: 'smooth', block: 'end'});
+            };
+
+            const nowTime = () => new Date().toLocaleTimeString();
+
+            // Enter to send, Shift+Enter newline
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendBtn.click();
+                }
+            });
+
+            const pickAgent = () => {
+                const opt = agentSelect.selectedOptions?.[0];
+                if (!opt) return null;
+
+                return { agent: opt.value, url: opt.dataset.url };
+            };
+
+            sendBtn.addEventListener('click', async () => {
+                clearError();
+
+                const prompt = input.value.trim();
+                if (!prompt) return;
+
+                const target = pickAgent();
+                if (!target) {
+                    showError('No agents configured.');
+                    return;
+                }
+
+                setBusy(true);
+
+                // user message
+                appendMessage({
+                    role: 'user',
+                    metaLeft: 'You',
+                    content: prompt,
+                });
+
+                try {
+                    const res = await fetch(target.url, {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            prompt: mdTextArea.value,
-                        })
-                    })
-                        .then(res => res.json())
-                        .then(data => {
-                            const aiResponse = document.createElement('pre');
-                            aiResponse.textContent = data.result;
-                            aiResponse.classList.add('ai-response-pre');
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({prompt}),
+                    });
 
-                            document.getElementById('ai-response-loader').replaceWith(aiResponse);
-                        })
-                    ;
+                    if (!res.ok) {
+                        const text = await res.text();
+                        throw new Error(`HTTP ${res.status}\n${text}`);
+                    }
 
-                    button.remove();
-                })
-            }
-        })
+                    const data = await res.json();
+
+                    appendMessage({
+                        role: 'assistant',
+                        metaLeft: `Agent: ${target.agent}`,
+                        content: data.result ?? '(empty response)',
+                    });
+
+                    input.value = '';
+                    input.focus();
+                } catch (err) {
+                    showError(String(err?.message || err));
+                } finally {
+                    setBusy(false);
+                }
+            });
+
+
+            const scrollChatToBottom = () => {
+                requestAnimationFrame(() => {
+                    chat.scrollTop = chat.scrollHeight;
+                });
+            };
+
+            scrollChatToBottom();
+        });
+
+
     </script>
 {% endblock %}
 
@@ -87,13 +504,15 @@
     {% set text %}
         {% if collector.exception %}
             <div class="sf-toolbar-info-piece">
-                 <pre id="sf-toolbar-vibedebug-md-description">
-                    {%- include '@Vibedebug/data_collector/prompt.md.twig' with {exception: collector.exception } -%}
+                <pre id="sf-toolbar-vibedebug-md-description" style="white-space: pre-wrap; max-width: 520px;">
+                    {%- include '@Vibedebug/prompt/exception_detail.md.twig' with { exception: collector.exception } -%}
                 </pre>
                 <button
-                    style="background-color: transparent;"
-                    onclick="navigator.clipboard.writeText(document.getElementById('sf-toolbar-vibedebug-md-description').textContent)"
-                >Copy prompt</button>
+                        class="sf-toolbar-action"
+                        style="background-color: transparent; border: 1px solid rgba(255,255,255,.2); padding: 4px 8px; border-radius: 8px;"
+                        onclick="navigator.clipboard.writeText(document.getElementById('sf-toolbar-vibedebug-md-description').textContent)"
+                >Copy prompt
+                </button>
             </div>
         {% endif %}
     {% endset %}
@@ -114,24 +533,82 @@
     <h2>Vibedebugging</h2>
 
     {% if collector.exception %}
-        <textarea id="md-exception-description-textarea">
-                {%- include '@Vibedebug/data_collector/prompt.md.twig' with { exception: collector.exception } -%}
-        </textarea>
+        <div class="vb-wrap">
+            <div class="vb-card">
+                <div class="vb-row" style="margin-bottom: 10px;">
+                    <div>
+                        <h3 class="vb-title">Chat</h3>
+                    </div>
+                    <span class="vb-badge">token: <code style="opacity:.9">{{ token }}</code></span>
+                </div>
 
-        <button id="copy-md-button" class="btn">Copy prompt</button>
+                <div id="vb-chat" class="vb-chat">
+                    {% for message in collector.chatMessageBag %}
+                        <div class="vb-msg vb-msg--{{ message.role.value }}">
+                            <div class="vb-msg__meta">
+                                <span>
+                                    {% if message.role.value == 'user' %}You
+                                    {% elseif message.role.value == 'assistant' %}Assistant
+                                    {% else %}System{% endif %}
+                                </span>
+                            </div>
+                            <div class="vb-bubble">
+                                <div class="vb-content">{{- message|vibedebug_content_extract|vibedebug_markdown -}}</div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                    {% if collector.chatMessageBag is empty %}
+                        <div class="vb-msg vb-msg--system">
+                            <div class="vb-msg__meta">
+                                <span>System</span>
+                            </div>
+                            <div class="vb-bubble">
+                                <div class="vb-content">
+                                    {{- include('@Vibedebug/prompt/system.md.twig')|vibedebug_markdown -}}
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
 
-        {% for agent in collector.agents %}
-            <button
-                    class="btn js-ask-agent-btn"
-                    data-url="{{ path('vibedebug_ask_agent', {agent: agent}) }}"
-                    data-agent="{{ agent }}">
-                Ask {{ agent }}
-            </button>
-        {% endfor %}
+                <div class="vb-composer">
+                    <div class="vb-row">
+                        <div class="vb-hint">Enter — send • Shift+Enter — newline</div>
+                        <div class="vb-actions">
+                            <label class="vb-hint" for="vb-agent">
+                                Agent
+                                <select id="vb-agent" class="vb-select">
+                                    {% for agent in collector.agents %}
+                                        <option
+                                                value="{{ agent }}"
+                                                data-url="{{ path('vibedebug_chat', {agent: agent, token: token}) }}"
+                                        >{{ agent }}</option>
+                                    {% endfor %}
+                                </select>
+                            </label>
+                        </div>
+                    </div>
 
-        <div id="ai-response">
-            <h3>AI response:</h3>
-            <div id="ai-response-loader">{% include '@Vibedebug/icon/load.svg' %}</div>
+                    <textarea id="vb-input" class="vb-input" placeholder="Type your message…">
+                        {%- if collector.chatMessageBag is empty -%}
+                            {%- include '@Vibedebug/prompt/exception_detail.md.twig' with { exception: collector.exception } -%}
+                        {%- endif -%}
+                    </textarea>
+
+                    <div class="vb-row" style="justify-content: flex-end;">
+                        <button id="vb-send" class="vb-btn vb-btn-primary" title="Send">Send</button>
+                    </div>
+
+                    <div class="vb-row">
+                        <div id="vb-loader" class="vb-loader">
+                            {% include '@Vibedebug/icon/load.svg' %}
+                            <span>Thinking…</span>
+                        </div>
+                    </div>
+
+                    <div id="vb-error" class="vb-error"></div>
+                </div>
+            </div>
         </div>
     {% else %}
         <strong>Nothing to debug. Your app is running fine.</strong>

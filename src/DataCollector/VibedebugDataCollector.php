@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace Milton\VibedebugBundle\DataCollector;
 
 use Symfony\AI\Agent\AgentInterface;
+use Symfony\AI\Platform\Message\MessageBag;
 use Symfony\Component\ErrorHandler\Exception\FlattenException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\DataCollector\DataCollector;
 use Throwable;
 
-final class VibedebugDataCollector extends DataCollector
+final class VibedebugDataCollector extends DataCollector implements VibedebugDataCollectorInterface
 {
     /**
      * @param iterable<AgentInterface> $agents
@@ -46,5 +47,15 @@ final class VibedebugDataCollector extends DataCollector
     public function getException(): ?FlattenException
     {
         return $this->data['exception'];
+    }
+
+    public function setChatMessageBag(MessageBag $messageBag): void
+    {
+        $this->data['chat_message_bag'] = $messageBag;
+    }
+
+    public function getChatMessageBag(): MessageBag
+    {
+        return $this->data['chat_message_bag'] ?? new MessageBag();
     }
 }

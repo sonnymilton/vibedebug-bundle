@@ -11,11 +11,36 @@ services:
         arguments:
             $agents: !tagged_iterator ai.agent
 
+    vibedebug.system_prompt_provider:
+        class: Milton\VibedebugBundle\Agent\Chat\SystemPrompt\TwigTemplateSystemPromptProvider
+        arguments:
+            $template: "@@Vibedebug/prompt/system.md.twig"
+            $twig: '@twig'
+
+    vibedebug.twig.extension:
+        class: Milton\VibedebugBundle\Twig\Extension\VibedebugExtension
+        tags: [ 'twig.extension' ]
+        arguments:
+            $converter: '@vibedebug.markdown.converter'
+
+    vibedebug.chat_loader:
+        class: Milton\VibedebugBundle\Agent\Chat\ChatLoader
+        arguments:
+            $profilerStorage: '@profiler.storage'
+            $systemPromptProvider: '@vibedebug.system_prompt_provider'
+
+    vibedebug.markdown.converter:
+        class: League\CommonMark\CommonMarkConverter
+        arguments:
+            $config: { html_input: strip }
+
     vibedebug.controller:
         class: Milton\VibedebugBundle\Controller\VibedebugController
         arguments:
             $agentRegistry: '@vibedebug.agent_registry'
             $profiler: '@profiler'
             $twig: '@twig'
+            $chatLoader: '@vibedebug.chat_loader'
+            $responseConverter: '@vibedebug.markdown.converter'
         tags:
             - { name: 'controller.service_arguments' }

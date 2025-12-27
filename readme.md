@@ -28,6 +28,10 @@ The bundle is recommended to use only in a dev environment.
 ## Integration with symfony/ai-bundle
 Configure you AI agents with `symfony/ai-bundle` so you can send them prompts directly from the vibedebug profiler panel.
 
-## Customizing the prompt
-To customize the prompt you have to override the template [prompt.md.twig](templates/data_collector/prompt.md.twig).  
+## Customizing the prompts
+To customize the prompt you have to override the templates:
+- [system.md.twig](templates/prompt/system.md.twig)
+- [exception_detail.md.twig](templates/prompt/exception_detail.md.twig) 
+
+
 [How to override a template](https://symfony.com/doc/current/bundles/override.html#templates)

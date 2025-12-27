@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace Milton\VibedebugBundle\Controller;
 
+use League\CommonMark\ConverterInterface;
 use Milton\VibedebugBundle\Agent\AgentRegistryInterface;
+use Milton\VibedebugBundle\Agent\Chat\ChatLoader;
 use Milton\VibedebugBundle\Agent\Exception\AgentNotFoundException;
-use Milton\VibedebugBundle\DataCollector\VibedebugDataCollector;
+use Milton\VibedebugBundle\DataCollector\VibedebugDataCollectorInterface;
 use Symfony\AI\Platform\Message\Content\Text;
-use Symfony\AI\Platform\Message\MessageBag;
 use Symfony\AI\Platform\Message\UserMessage;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,11 +24,13 @@ final readonly class VibedebugController
     public function __construct(
         private AgentRegistryInterface $agentRegistry,
         private Profiler $profiler,
+        private ChatLoader $chatLoader,
         private Environment $twig,
+        private ConverterInterface $responseConverter,
     ) {
     }
 
-    public function askAgent(string $agent, Request $request): JsonResponse
+    public function chat(string $agent, string $token, Request $request): JsonResponse
     {
         try {
             $agent = $this->agentRegistry->getAgent($agent);
@@ -35,18 +38,19 @@ final readonly class VibedebugController
             throw new NotFoundHttpException($exception->getMessage());
         }
 
+        $chat = $this->chatLoader->loadChat($agent, $token);
         $message = new UserMessage(
             new Text($request->getPayload()->getString('prompt')),
         );
 
         try {
-            $resultContent = $agent->call(new MessageBag($message))->getContent();
+            $resultContent = (string) $chat->submit($message)->getContent();
         } catch (Throwable) {
             $resultContent = 'The agent didn\'t respond to the request';
         }
 
         return new JsonResponse([
-            'result' => $resultContent,
+            'result' => $this->responseConverter->convert($resultContent)->getContent(),
         ]);
     }
 
@@ -58,7 +62,7 @@ final readonly class VibedebugController
             throw new NotFoundHttpException('Profile not found');
         }
 
-        /** @var VibedebugDataCollector $collector */
+        /** @var VibedebugDataCollectorInterface $collector */
         $collector = $profile->getCollector('vibedebug');
 
         return new Response(

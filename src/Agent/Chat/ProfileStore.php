@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Milton\VibedebugBundle\Agent\Chat;
 
+use Milton\VibedebugBundle\Agent\Chat\Exception\UnsupportedProfileException;
 use Milton\VibedebugBundle\DataCollector\VibedebugDataCollectorInterface;
-use RuntimeException;
 use Symfony\AI\Chat\ManagedStoreInterface;
 use Symfony\AI\Chat\MessageStoreInterface;
 use Symfony\AI\Platform\Message\MessageBag;
@@ -21,7 +21,7 @@ final readonly class ProfileStore implements MessageStoreInterface, ManagedStore
         private ?SystemMessage $systemPrompt = null,
     ) {
         if (!$this->profile->hasCollector('vibedebug')) {
-            throw new RuntimeException(sprintf('Profile for token %s is not supported', $this->profile->getToken()));
+            throw UnsupportedProfileException::forProfile($this->profile);
         }
     }
 
@@ -55,8 +55,13 @@ final readonly class ProfileStore implements MessageStoreInterface, ManagedStore
 
     private function collector(): VibedebugDataCollectorInterface
     {
-        /* @var VibedebugDataCollectorInterface */
-        return $this->profile->getCollector('vibedebug');
+        $collector = $this->profile->getCollector('vibedebug');
+
+        if (!$collector instanceof VibedebugDataCollectorInterface) {
+            throw UnsupportedProfileException::forProfile($this->profile);
+        }
+
+        return $collector;
     }
 
     private function persist(): void

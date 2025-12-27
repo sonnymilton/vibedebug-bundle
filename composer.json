@@ -26,6 +26,7 @@
         "symfony/ai-chat": "^0.1.0",
         "symfony/dependency-injection": "^6.4 || ^7.0",
         "symfony/http-kernel": "^6.4 || ^7.0",
+        "symfony/web-profiler-bundle": "^6.4 || ^7.0",
         "twig/twig": "^3.0"
     },
     "require-dev": {

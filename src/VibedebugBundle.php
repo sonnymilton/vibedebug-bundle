@@ -11,15 +11,18 @@ use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
 
 final class VibedebugBundle extends AbstractBundle
 {
+    public function prependExtension(ContainerConfigurator $container, ContainerBuilder $builder): void
+    {
+        if (!$builder->hasExtension('web_profiler')) {
+            throw new InvalidConfigurationException('VibedebugBundle requires symfony/web-profiler-bundle to be installed and enabled.');
+        }
+    }
+
     /**
      * @param array{} $config
      */
     public function loadExtension(array $config, ContainerConfigurator $container, ContainerBuilder $builder): void
     {
-        if (!$builder->hasExtension('web_profiler')) {
-            throw new InvalidConfigurationException('VibedebugBundle requires symfony/web-profiler-bundle to be installed and enabled.');
-        }
-
         $container->import(__DIR__.'/../config/services.yaml');
     }
 }

@@ -51,7 +51,7 @@ final readonly class ProfileStore implements MessageStoreInterface, ManagedStore
 
     public function setup(array $options = []): void
     {
-        $this->collector()->setChatMessageBag(new MessageBag());
+        $this->collector()->setChatMessageBag($this->load());
         $this->persist();
     }
 

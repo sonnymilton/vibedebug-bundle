@@ -35,8 +35,15 @@ final readonly class ProfileStore implements MessageStoreInterface, ManagedStore
     {
         $messageBag = $this->collector()->getChatMessageBag();
 
-        if (0 === $messageBag->count() && null !== $this->systemPrompt) {
-            $messageBag->add($this->systemPrompt);
+        if (0 === $messageBag->count()) {
+            if (null !== $this->systemPrompt) {
+                $messageBag->add($this->systemPrompt);
+            }
+
+            $messageBag->add(new SystemMessage(sprintf(
+                'Context: Symfony Profiler profile token = %s. Use it when you need to fetch profile data via tools.',
+                $this->profile->getToken(),
+            )));
         }
 
         return $messageBag;

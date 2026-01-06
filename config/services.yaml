@@ -34,6 +34,13 @@ services:
         arguments:
             $config: { html_input: strip }
 
+    vibedebug.profile_exporter:
+        class: Milton\VibedebugBundle\Agent\Tool\ProfileExporter
+        arguments:
+            $profiler: '@profiler'
+        tags:
+            - { name: 'ai.tool' }
+
     vibedebug.controller:
         class: Milton\VibedebugBundle\Controller\VibedebugController
         arguments:

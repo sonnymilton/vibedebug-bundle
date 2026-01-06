@@ -85,8 +85,8 @@ class ProfileExporterTest extends TestCase
         self::assertSame(500, $result['status_code']);
         self::assertSame(['exception', 'custom'], $result['collectors']);
 
-        self::assertInstanceOf(FlattenException::class, $result['exception']);
-        self::assertSame('Boom', $result['exception']->getMessage());
+        self::assertIsArray($result['exception']);
+        self::assertSame('Boom', $result['exception'][0]['message']);
     }
 
     public function testExportCollectorsToolReturnsErrorWhenProfileMissing(): void

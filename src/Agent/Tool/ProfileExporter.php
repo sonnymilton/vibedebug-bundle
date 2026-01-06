@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Milton\VibedebugBundle\Agent\Tool;
 
+use Mcp\Capability\Attribute\McpTool;
 use Milton\VibedebugBundle\DataCollector\Adapter\GenericDataCollectorExtractorAdapter;
 use Symfony\AI\Agent\Toolbox\Attribute\AsTool;
 use Symfony\AI\Platform\Contract\JsonSchema\Attribute\With;
@@ -20,6 +21,12 @@ use Symfony\Component\VarDumper\Cloner\Data;
  *     data?: array<mixed>|Data,
  *     error?: 'Collector not found'
  * }>
+ * @phpstan-type ExceptionExport array{
+ *     class: class-string<\Throwable>|string,
+ *     message: string,
+ *     trace: array<array<string, mixed>>,
+ *     data: Data|null
+ * }
  * @phpstan-type SummaryExport array{
  *     token: string,
  *     parent: ?string,
@@ -29,7 +36,7 @@ use Symfony\Component\VarDumper\Cloner\Data;
  *     url: ?string,
  *     time: int,
  *     status_code: int|null,
- *     exception: FlattenException|null,
+ *     exception: array<ExceptionExport>|null,
  *     collectors: list<string>
  * }
  * @phpstan-type ProfileLoadError array{error: string, token: string}
@@ -54,6 +61,10 @@ final readonly class ProfileExporter
     /**
      * @return (SummaryExport|ProfileLoadError)
      */
+    #[McpTool(
+        name: 'vibedebug_profiler_summary',
+        description: 'Export a compact summary and collector list for a profiler token.',
+    )]
     public function exportSummary(#[With(minLength: 1)] string $token): array
     {
         $profile = $this->profiler->loadProfile($token);
@@ -74,7 +85,7 @@ final readonly class ProfileExporter
             'url' => $profile->getUrl(),
             'time' => $profile->getTime(),
             'status_code' => $profile->getStatusCode(),
-            'exception' => $this->getProfileException($profile),
+            'exception' => $this->getProfileException($profile)?->toArray(),
             'collectors' => array_keys($profile->getCollectors()),
         ];
     }
@@ -84,6 +95,10 @@ final readonly class ProfileExporter
      **
      * @return CollectorExport|ProfileLoadError
      */
+    #[McpTool(
+        name: 'vibedebug_profiler_export_collectors',
+        description: 'Export requested data collectors for a profiler token.',
+    )]
     public function exportCollectors(
         #[With(minLength: 1)] string $token,
         #[With(minItems: 1)] array $requestedCollectors,

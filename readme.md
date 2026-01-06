@@ -41,10 +41,11 @@ The tools are registered service tag and can be used by:
 - internal Symfony AI agents (`symfony/ai-agent`)
 - external agents via MCP (**Symfony AI Mate**)
 
-#### Enabling the AI tools
-To make Vibedebug AI tools available for an AI agent, register the tool class in the agent configuration:
+#### Enabling the AI tools for agent
+To make Vibedebug AI tools available for an AI agent, register the tool service id `'vibedebug.profile_exporter'` in the agent configuration:
 
 ```yaml
+# config/packages/ai.yaml
 ai:
     platform:
         ollama:
@@ -57,9 +58,18 @@ ai:
                 class: Symfony\AI\Platform\Bridge\Ollama\Ollama
                 name: "qwen3:8b"
             tools:
-                - 'vibedebug.profile_exporter' # profile exporter AI tools
+                - 'vibedebug.profile_exporter'
 
 ```
+
+#### Enabling the AI tools for Mate
+Enabled by default.
+```bash
+composer dump-autoload
+vendor/bin/mate discover
+```
+
+https://symfony.com/doc/current/ai/components/mate.html
 
 ## Customizing the prompts
 To customize the prompt you have to override the templates:

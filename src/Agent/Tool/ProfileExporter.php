@@ -37,12 +37,12 @@ use Symfony\Component\VarDumper\Cloner\Data;
 #[AsTool(
     name: 'vibedebug_profiler_summary',
     description: 'Export a compact summary and collector list for a profiler token.',
-    method: 'exportSummary',
+    method: 'exportSummary', /* @see ProfileExporter::exportSummary() */
 )]
 #[AsTool(
     name: 'vibedebug_profiler_export_collectors',
     description: 'Export requested data collectors for a profiler token.',
-    method: 'exportCollectorsTool',
+    method: 'exportCollectors', /* @see ProfileExporter::exportCollectors() */
 )]
 final readonly class ProfileExporter
 {
@@ -84,7 +84,7 @@ final readonly class ProfileExporter
      **
      * @return CollectorExport|ProfileLoadError
      */
-    public function exportCollectorsTool(
+    public function exportCollectors(
         #[With(minLength: 1)] string $token,
         #[With(minItems: 1)] array $requestedCollectors,
     ): array {

@@ -28,6 +28,39 @@ The bundle is recommended to use only in a dev environment.
 ## Integration with symfony/ai-bundle
 Configure you AI agents with `symfony/ai-bundle` so you can send them prompts directly from the vibedebug profiler panel.
 
+### AI Profiler Tools
+VibedebugBundle exposes Symfony Profiler data as AI tools, allowing AI agents to fetch profiler information using a profiler token.  
+This enables automated debugging workflows, such as analyzing failed requests, inspecting specific data collectors, and correlating exceptions with request context.
+
+### Capabilities
+- Export a compact profiler summary by token.
+- List available data collectors for a profile.
+- Export data from selected collectors.
+
+The tools are registered service tag and can be used by:
+- internal Symfony AI agents (`symfony/ai-agent`)
+- external agents via MCP (**Symfony AI Mate**)
+
+#### Enabling the AI tools
+To make Vibedebug AI tools available for an AI agent, register the tool class in the agent configuration:
+
+```yaml
+ai:
+    platform:
+        ollama:
+            host_url: 'http://host.docker.internal:11434'
+            http_client: http_client
+    agent:
+        ollama_debugger:
+            platform: 'ai.platform.ollama'
+            model:
+                class: Symfony\AI\Platform\Bridge\Ollama\Ollama
+                name: "qwen3:8b"
+            tools:
+                - 'vibedebug.profile_exporter' # profile exporter AI tools
+
+```
+
 ## Customizing the prompts
 To customize the prompt you have to override the templates:
 - [system.md.twig](templates/prompt/system.md.twig)

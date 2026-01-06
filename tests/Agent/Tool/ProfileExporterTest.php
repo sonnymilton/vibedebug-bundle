@@ -102,7 +102,7 @@ class ProfileExporterTest extends TestCase
 
         self::assertSame(
             ['error' => 'Profile "tok-missing" not found.', 'token' => 'tok-missing'],
-            $exporter->exportCollectorsTool('tok-missing', ['custom'])
+            $exporter->exportCollectors('tok-missing', ['custom'])
         );
     }
 
@@ -121,7 +121,7 @@ class ProfileExporterTest extends TestCase
 
         self::assertSame(
             ['missing' => ['error' => 'Collector not found']],
-            $exporter->exportCollectorsTool('tok-2', ['missing'])
+            $exporter->exportCollectors('tok-2', ['missing'])
         );
     }
 
@@ -159,7 +159,7 @@ class ProfileExporterTest extends TestCase
             ->willReturn($profile);
 
         $exporter = new ProfileExporter($profiler);
-        $result = $exporter->exportCollectorsTool('tok-3', ['custom']);
+        $result = $exporter->exportCollectors('tok-3', ['custom']);
 
         self::assertSame($collector::class, $result['custom']['class']);
         self::assertSame(['source' => 'extractable'], $result['custom']['data']);

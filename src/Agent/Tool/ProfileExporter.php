@@ -5,10 +5,11 @@ declare(strict_types=1);
 namespace Milton\VibedebugBundle\Agent\Tool;
 
 use Mcp\Capability\Attribute\McpTool;
-use Milton\VibedebugBundle\DataCollector\Adapter\GenericDataCollectorExtractorAdapter;
+use Milton\VibedebugBundle\DataCollector\DataExtractor\CollectorDataExtractorInterface;
+use Milton\VibedebugBundle\DataCollector\DataExtractor\Extractor\ExceptionCollectorDataExtractor;
+use Milton\VibedebugBundle\DataCollector\DataExtractor\Extractor\GenericCollectorDataExtractor;
 use Symfony\AI\Agent\Toolbox\Attribute\AsTool;
 use Symfony\AI\Platform\Contract\JsonSchema\Attribute\With;
-use Symfony\Component\ErrorHandler\Exception\FlattenException;
 use Symfony\Component\HttpKernel\DataCollector\DataCollectorInterface;
 use Symfony\Component\HttpKernel\DataCollector\ExceptionDataCollector;
 use Symfony\Component\HttpKernel\Profiler\Profile;
@@ -18,7 +19,7 @@ use Symfony\Component\VarDumper\Cloner\Data;
 /**
  * @phpstan-type CollectorExport non-empty-array<string, array{
  *     class?: class-string<DataCollectorInterface>,
- *     data?: array<mixed>|Data,
+ *     data?: array<string, mixed>,
  *     error?: 'Collector not found'
  * }>
  * @phpstan-type ExceptionExport array{
@@ -85,14 +86,14 @@ final readonly class ProfileExporter
             'url' => $profile->getUrl(),
             'time' => $profile->getTime(),
             'status_code' => $profile->getStatusCode(),
-            'exception' => $this->getProfileException($profile)?->toArray(),
+            'exception' => $this->getProfileException($profile),
             'collectors' => array_keys($profile->getCollectors()),
         ];
     }
 
     /**
-     * @param non-empty-list<string> $requestedCollectors
-     **
+     * @param non-empty-list<string> $collectors
+     *
      * @return CollectorExport|ProfileLoadError
      */
     #[McpTool(
@@ -101,7 +102,7 @@ final readonly class ProfileExporter
     )]
     public function exportCollectors(
         #[With(minLength: 1)] string $token,
-        #[With(minItems: 1)] array $requestedCollectors,
+        #[With(minItems: 1)] array $collectors,
     ): array {
         $profile = $this->profiler->loadProfile($token);
 
@@ -114,7 +115,7 @@ final readonly class ProfileExporter
 
         $result = [];
 
-        foreach ($requestedCollectors as $collectorName) {
+        foreach ($collectors as $collectorName) {
             if (!$profile->hasCollector($collectorName)) {
                 $result[$collectorName]['error'] = 'Collector not found';
                 continue;
@@ -124,27 +125,34 @@ final readonly class ProfileExporter
 
             $result[$collectorName] = [
                 'class' => $collector::class,
-                'data' => GenericDataCollectorExtractorAdapter::for($collector)->extractData(),
+                'data' => $this->getDataExtractor($collector)->extractData(),
             ];
         }
 
         return $result;
     }
 
-    private function getProfileException(Profile $profile): ?FlattenException
+    /**
+     * @return array<ExceptionExport>
+     */
+    private function getProfileException(Profile $profile): array
     {
         if (!$profile->hasCollector('exception')) {
-            return null;
+            return [];
         }
 
-        /** @var ExceptionDataCollector $collector */
         $collector = $profile->getCollector('exception');
-        $exception = $collector->getException();
+        /** @var ExceptionCollectorDataExtractor $extractor */
+        $extractor = $this->getDataExtractor($collector);
 
-        if (!$exception instanceof FlattenException) {
-            $exception = FlattenException::createWithDataRepresentation($exception);
-        }
+        return $extractor->extractData();
+    }
 
-        return $exception;
+    private function getDataExtractor(DataCollectorInterface $collector): CollectorDataExtractorInterface
+    {
+        return match ($collector::class) {
+            ExceptionDataCollector::class => ExceptionCollectorDataExtractor::for($collector),
+            default => GenericCollectorDataExtractor::for($collector),
+        };
     }
 }

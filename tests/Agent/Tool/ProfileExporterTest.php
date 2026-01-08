@@ -5,16 +5,15 @@ declare(strict_types=1);
 namespace Agent\Tool;
 
 use Milton\VibedebugBundle\Agent\Tool\ProfileExporter;
-use Milton\VibedebugBundle\DataCollector\ExtractableDataCollectorInterface;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\ErrorHandler\Exception\FlattenException;
+use RuntimeException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\DataCollector\DataCollectorInterface;
 use Symfony\Component\HttpKernel\DataCollector\ExceptionDataCollector;
 use Symfony\Component\HttpKernel\Profiler\Profile;
 use Symfony\Component\HttpKernel\Profiler\Profiler;
-use Symfony\Component\VarDumper\Cloner\Data;
+use Throwable;
 
 class ProfileExporterTest extends TestCase
 {
@@ -47,11 +46,11 @@ class ProfileExporterTest extends TestCase
         $profile->addChild(new Profile('child-1'));
 
         $exceptionCollector = new ExceptionDataCollector();
-        $exceptionCollector->collect(new Request(), new Response(), new \RuntimeException('Boom'));
+        $exceptionCollector->collect(new Request(), new Response(), new RuntimeException('Boom'));
         $profile->addCollector($exceptionCollector);
 
-        $profile->addCollector(new class() implements DataCollectorInterface {
-            public function collect(Request $request, Response $response, ?\Throwable $exception = null): void
+        $profile->addCollector(new class implements DataCollectorInterface {
+            public function collect(Request $request, Response $response, ?Throwable $exception = null): void
             {
             }
 
@@ -129,13 +128,13 @@ class ProfileExporterTest extends TestCase
     {
         $profile = new Profile('tok-3');
 
-        $collector = new class() implements DataCollectorInterface, ExtractableDataCollectorInterface {
-            public function extractData(): array|Data
+        $collector = new class implements DataCollectorInterface {
+            public function getData(): array
             {
                 return ['source' => 'extractable'];
             }
 
-            public function collect(Request $request, Response $response, ?\Throwable $exception = null): void
+            public function collect(Request $request, Response $response, ?Throwable $exception = null): void
             {
             }
 
